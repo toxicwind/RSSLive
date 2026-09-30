@@ -1,171 +1,79 @@
+<div align="right">
+
+![Java](https://img.shields.io/badge/java-8-007396.svg?style=for-the-badge)
+![Spring Boot](https://img.shields.io/badge/spring__boot-1.5.7-6DB33F.svg?style=for-the-badge)
+![Angular](https://img.shields.io/badge/angular-4-DD0031.svg?style=for-the-badge)
+![JHipster](https://img.shields.io/badge/jhipster-4.10.2-3E8ACC.svg?style=for-the-badge)
+
+</div>
+
 # RSSLive
-This application was generated using JHipster 4.10.2, you can find documentation and help at [http://www.jhipster.tech/documentation-archive/v4.10.2](http://www.jhipster.tech/documentation-archive/v4.10.2).
 
-## Development
+**A full-stack web application scaffold for a live RSS experience — Spring Boot backend, Angular frontend, generated with JHipster 4.10.2 and ready to build on.**
 
-Before you can build this project, you must install and configure the following dependencies on your machine:
+> **Why should I care?** This is the boring-but-correct foundation: JWT auth, user management, auditing, metrics, and a production database config — all wired and working out of the box. Clone it, run two commands, and you have a running monolith to grow your RSS features on instead of a blank `pom.xml`.
 
-1. [Node.js][]: We use Node to run a development web server and build the project.
-   Depending on your system, you can install Node either from source or as a pre-packaged bundle.
-2. [Yarn][]: We use Yarn to manage Node dependencies.
-   Depending on your system, you can install Yarn either from source or as a pre-packaged bundle.
+## Features
 
-After installing Node, you should be able to run the following command to install development tools.
-You will only need to run this command when dependencies change in [package.json](package.json).
+- **🔐 Complete auth** — JWT-based login, user registration, password reset, role-based access (admin/user)
+- **📊 Built-in ops** — metrics, health checks, auditing, and user-activity tracking via the JHipster admin UI
+- **🔍 Search-ready** — Elasticsearch integration for full-text search
+- **🗄️ Real database story** — H2 on disk for dev, MariaDB for production
+- **⚡ Cached** — Hazelcast Hibernate second-level cache
+- **🖥️ Modern client** — Angular frontend with Webpack build, Sass, and hot-reload dev server
 
-    yarn install
+## Architecture
 
-We use yarn scripts and [Webpack][] as our build system.
-
-
-Run the following commands in two separate terminals to create a blissful development experience where your browser
-auto-refreshes when files change on your hard drive.
-
-    ./mvnw
-    yarn start
-
-[Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
-specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
-Add the `help` flag on any command to see how you can use it. For example, `yarn help update`.
-
-The `yarn run` command will list all of the scripts available to run for this project.
-
-### Service workers
-
-Service workers are commented by default, to enable them please uncomment the following code.
-
-* The service worker registering script in index.html
+```mermaid
+flowchart LR
+    subgraph Client
+        NG[Angular SPA<br/>Webpack + Sass]
+    end
+    subgraph Server["Spring Boot 1.5.7 :8080"]
+        REST[REST API<br/>JWT secured]
+        SVC[Services<br/>User / Audit / Mail]
+        JPA[JPA / Hibernate<br/>Hazelcast cache]
+    end
+    subgraph Data
+        H2[(H2 dev)]
+        MDB[(MariaDB prod)]
+        ES[(Elasticsearch)]
+    end
+    NG --> REST
+    REST --> SVC
+    SVC --> JPA
+    JPA --> H2
+    JPA --> MDB
+    SVC --> ES
 ```
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-        .register('./sw.js')
-        .then(function() { console.log('Service Worker Registered'); });
-    }
-</script>
+
+## Quick start
+
+```bash
+./mvnw          # backend on :8080 (terminal 1)
+yarn start       # frontend dev server with hot reload (terminal 2)
 ```
-* The copy file option in webpack-common.js
-```js
-{ from: './src/main/webapp/sw.js', to: 'sw.js' },
-```
-Note: Add the respective scripts/assets in `sw.js` that is needed to be cached.
 
-### Managing dependencies
+Sign in with `admin` / `admin` (or `user` / `user`).
 
-For example, to add [Leaflet][] library as a runtime dependency of your application, you would run following command:
+## Config
 
-    yarn add --exact leaflet
+| Concern | Dev | Prod |
+|---|---|---|
+| Database | H2 (disk) | MariaDB |
+| Search | Elasticsearch | Elasticsearch |
+| Cache | Hazelcast | Hazelcast |
+| Service discovery | Eureka | Eureka |
+| Packaging | `./mvnw` | `./mvnw -Pprod package` |
 
-To benefit from TypeScript type definitions from [DefinitelyTyped][] repository in development, you would run following command:
+Server port: `8080`. The JWT secret lives in `.yo-rc.json` — rotate it before any public deployment.
 
-    yarn add --dev --exact @types/leaflet
+## Dev / contributing
 
-Then you would import the JS and CSS files specified in library's installation instructions so that [Webpack][] knows about them:
+Generated with [JHipster 4.10.2](http://www.jhipster.tech/documentation-archive/v4.10.2). Standard Maven + Yarn workflow: `./mvnw` for the backend, `yarn start` / `yarn test` for the client. Entity scaffolding via `yo jhipster:entity` if you add the generator.
 
-Edit [src/main/webapp/app/vendor.ts](src/main/webapp/app/vendor.ts) file:
-~~~
-import 'leaflet/dist/leaflet.js';
-~~~
+## License + security
 
-Edit [src/main/webapp/content/css/vendor.css](src/main/webapp/content/css/vendor.css) file:
-~~~
-@import '~leaflet/dist/leaflet.css';
-~~~
+No license file is currently declared in this repository — treat as all-rights-reserved until one is added.
 
-Note: there are still few other things remaining to do for Leaflet that we won't detail here.
-
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
-
-### Using angular-cli
-
-You can also use [Angular CLI][] to generate some custom client code.
-
-For example, the following command:
-
-    ng generate component my-component
-
-will generate few files:
-
-    create src/main/webapp/app/my-component/my-component.component.html
-    create src/main/webapp/app/my-component/my-component.component.ts
-    update src/main/webapp/app/app.module.ts
-
-
-## Building for production
-
-To optimize the RSSLive application for production, run:
-
-    ./mvnw -Pprod clean package
-
-This will concatenate and minify the client CSS and JavaScript files. It will also modify `index.html` so it references these new files.
-To ensure everything worked, run:
-
-    java -jar target/*.war
-
-Then navigate to [http://localhost:8080](http://localhost:8080) in your browser.
-
-Refer to [Using JHipster in production][] for more details.
-
-## Testing
-
-To launch your application's tests, run:
-
-    ./mvnw clean test
-
-### Client tests
-
-Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in [src/test/javascript/](src/test/javascript/) and can be run with:
-
-    yarn test
-
-
-
-For more information, refer to the [Running tests page][].
-
-## Using Docker to simplify development (optional)
-
-You can use Docker to improve your JHipster development experience. A number of docker-compose configuration are available in the [src/main/docker](src/main/docker) folder to launch required third party services.
-For example, to start a mariadb database in a docker container, run:
-
-    docker-compose -f src/main/docker/mariadb.yml up -d
-
-To stop it and remove the container, run:
-
-    docker-compose -f src/main/docker/mariadb.yml down
-
-You can also fully dockerize your application and all the services that it depends on.
-To achieve this, first build a docker image of your app by running:
-
-    ./mvnw package -Pprod dockerfile:build
-
-Then run:
-
-    docker-compose -f src/main/docker/app.yml up -d
-
-For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`jhipster docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
-
-## Continuous Integration (optional)
-
-To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
-
-[JHipster Homepage and latest documentation]: http://www.jhipster.tech
-[JHipster 4.10.2 archive]: http://www.jhipster.tech/documentation-archive/v4.10.2
-
-[Using JHipster in development]: http://www.jhipster.tech/documentation-archive/v4.10.2/development/
-[Service Discovery and Configuration with the JHipster-Registry]: http://www.jhipster.tech/documentation-archive/v4.10.2/microservices-architecture/#jhipster-registry
-[Using Docker and Docker-Compose]: http://www.jhipster.tech/documentation-archive/v4.10.2/docker-compose
-[Using JHipster in production]: http://www.jhipster.tech/documentation-archive/v4.10.2/production/
-[Running tests page]: http://www.jhipster.tech/documentation-archive/v4.10.2/running-tests/
-[Setting up Continuous Integration]: http://www.jhipster.tech/documentation-archive/v4.10.2/setting-up-ci/
-
-
-[Node.js]: https://nodejs.org/
-[Yarn]: https://yarnpkg.org/
-[Webpack]: https://webpack.github.io/
-[Angular CLI]: https://cli.angular.io/
-[BrowserSync]: http://www.browsersync.io/
-[Karma]: http://karma-runner.github.io/
-[Jasmine]: http://jasmine.github.io/2.0/introduction.html
-[Protractor]: https://angular.github.io/protractor/
-[Leaflet]: http://leafletjs.com/
-[DefinitelyTyped]: http://definitelytyped.org/
+Security notes: this scaffold ships with **default credentials** (`admin`/`admin`, `user`/`user`) and a **committed JWT secret** (`.yo-rc.json`). Change both before exposing the app to any network. Dependencies are from 2017 (Spring Boot 1.5.x, Angular 4) — run `yarn audit` / dependency checks and upgrade before production use.
